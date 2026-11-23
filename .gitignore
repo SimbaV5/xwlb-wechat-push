@@ -1,0 +1,8 @@
+# 忽略本地环境与缓存
+.env
+__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+.venv/
+venv/

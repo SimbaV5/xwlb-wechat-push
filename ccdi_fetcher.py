@@ -43,11 +43,11 @@ def _pw():
         raise
 
 
-def fetch_html(page, url, retries=5, wait_ms=1800):
+def fetch_html(page, url, retries=3, wait_ms=1200):
     """复用同一个 page 打开 url，自动过验证码，返回真实 HTML 或 None。"""
     for _ in range(retries):
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.goto(url, wait_until="domcontentloaded", timeout=20000)
         except Exception:
             pass
         page.wait_for_timeout(wait_ms)

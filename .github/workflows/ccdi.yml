@@ -33,7 +33,7 @@ jobs:
         run: python -m playwright install chromium
 
       - name: 抓取中纪委通报
-        run: python ccdi_fetcher.py --pages 3 --limit 30 --out docs/ccdi/latest.json
+        run: python ccdi_fetcher.py --pages 2 --limit 15 --out docs/ccdi/latest.json
 
       - name: 提交数据更新
         run: |

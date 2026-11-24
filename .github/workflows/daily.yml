@@ -1,11 +1,12 @@
 name: 每日新闻联播推送与数据更新
 
-# 北京时间 20:00 = UTC 12:00，每天：
-# ① 抓取当天文字稿，更新 App 数据包（latest.json + 当年 years 包）
+# 北京时间 23:30 = UTC 15:30（央视当天文字稿通常 21:00~23:00 才全部上线，抓太早会拿到空/不全）
+# 每天：
+# ① 抓取当天文字稿，更新 App 数据包（latest.json + 当年 years 包，自动补偿最近5天）
 # ② 微信推送当天文字稿
 on:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "30 15 * * *"
   workflow_dispatch:
     inputs:
       date:

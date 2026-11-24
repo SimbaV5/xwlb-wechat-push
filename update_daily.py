@@ -52,14 +52,14 @@ def main():
 
 
 def update_mps():
-    """抓取公安部公安要闻，写入 docs/mps/latest.json。"""
+    """抓取公安部公安要闻，合并历史后写入 docs/mps/latest.json（增量累积）。"""
     import mps_fetcher
-    data = mps_fetcher.scrape(pages=1)
     mdir = os.path.join(OUT, "mps")
     os.makedirs(mdir, exist_ok=True)
-    with open(os.path.join(mdir, "latest.json"), "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
-    print(f"已更新公安部新闻: {data['count']} 条")
+    out = os.path.join(mdir, "latest.json")
+    # 把输出路径传给 scrape，让它读取旧文件合并历史，避免每天覆盖丢历史
+    data = mps_fetcher.scrape(pages=1, out_path=out)
+    print(f"已更新公安部新闻: 本地累计 {data['count']} 条")
 
 
 if __name__ == "__main__":

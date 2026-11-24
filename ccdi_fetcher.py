@@ -106,15 +106,41 @@ def parse_detail(html, url):
     return {"title": title, "source": source, "content": content, "date": date, "url": url}
 
 
+def load_history(out_path):
+    """读取已有 latest.json 里的历史条目，按 url 索引，用于增量累积。"""
+    history = {}
+    if not out_path or not os.path.exists(out_path):
+        return history
+    try:
+        with open(out_path, "r", encoding="utf-8") as f:
+            old = json.load(f)
+        for n in old.get("news", []):
+            if n.get("url"):
+                history[n["url"]] = n
+    except Exception as e:
+        sys.stderr.write(f"[warn] 读取历史失败，从零累积: {e}\n")
+    return history
+
+
 def scrape(pages=1, out_path=None, limit=30):
     sync_playwright = _pw()
     result = {"source": "中央纪委国家监委·通报",
               "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
               "count": 0, "news": []}
 
+    # 先读入历史，抓取时按 url 合并（新的覆盖旧的，历史独有项保留）
+    history = load_history(out_path)
+
     def flush(news):
-        result["news"] = news
-        result["count"] = len(news)
+        merged = dict(history)                     # 历史打底
+        for n in news:                             # 本次抓取覆盖同名 url
+            if n.get("url"):
+                merged[n["url"]] = n
+        combined = sorted(merged.values(),
+                          key=lambda x: (x.get("date", ""), x.get("title", "")),
+                          reverse=True)
+        result["news"] = combined
+        result["count"] = len(combined)
         result["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if out_path:
             os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
